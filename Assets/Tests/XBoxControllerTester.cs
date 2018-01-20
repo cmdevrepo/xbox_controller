@@ -14,11 +14,14 @@ public class XBoxControllerTester : MonoBehaviour {
 		"_P2"
 	};
 
-	private string[] keys = {
+	private string[] axisKeys = {
 		"H1",
 		"H2",
 		"V1",
 		"V2",
+	};
+
+	private string[] buttonKeys = {
 		"X",
 		"Y",
 		"A",
@@ -29,8 +32,6 @@ public class XBoxControllerTester : MonoBehaviour {
 		"PADD",
 		"JOY1",
 		"JOY2",
-		"LT",
-		"RT",
 		"LB",
 		"RB",
 		"START",
@@ -38,54 +39,43 @@ public class XBoxControllerTester : MonoBehaviour {
 		"HOME"
 	};
 
-	private string prompt = "Press Any Key";
+	private string[] triggerKeys = {
+		"LT",
+		"RT",
+	};
 
-	private float showTime = 1f;
+	private string prompt = "Press Any Key";
+	private float showTime = 0.5f;
 	private float timeSinceLastInput1 = 0f;
 	private float timeSinceLastInput2 = 0f;
 
 
-	void Update () {
+	public void Update () {
 		foreach (string playerTag in playerTags) {
-			foreach (string key in keys) {
-
-				// For axis values.
-				float val = Input.GetAxis(key + playerTag);
+			// For axis values.
+			foreach (string key in axisKeys) {
+				float val = Input.GetAxis (key + playerTag);
 				if (val != 0) {
-
-					// Special case for the left and right triggers.
-					if (key == "LT" || key == "RT") {
-						if (val < 0) {
-							return;
-						}
-					}
-
 					string output = key + playerTag + ": " + val;
-					if (playerTag == "_P1") {
-						ctrl1Out.text = output;
-						Debug.Log (output);
-						timeSinceLastInput1 = showTime;
-					} else if (playerTag == "_P2") {
-						ctrl2Out.text = output;
-						Debug.Log (output);
-						timeSinceLastInput2 = showTime;
-					}
-
+					UpdateText (playerTag, output);
 				}
+			}
 
-				// For button values.
+			// For button values.
+			foreach (string key in buttonKeys) {
 				bool buttonInput = Input.GetButtonDown(key + playerTag);
 				if (buttonInput) {
 					string output = key + playerTag;
-					if (playerTag == "_P1") {
-						ctrl1Out.text = output;
-						Debug.Log (output);
-						timeSinceLastInput1 = showTime;
-					} else if (playerTag == "_P2") {
-						ctrl2Out.text = output;
-						Debug.Log (output);
-						timeSinceLastInput2 = showTime;
-					}
+					UpdateText (playerTag, output);
+				}
+			}
+
+			// For trigger values.
+			foreach (string key in triggerKeys) {
+				float val = Input.GetAxis (key + playerTag);
+				if (val > 0.0f) {
+					string output = key + playerTag + ": " + val;
+					UpdateText (playerTag, output);
 				}
 			}
 		}
@@ -102,6 +92,17 @@ public class XBoxControllerTester : MonoBehaviour {
 		}
 
 	}
+		
+	private void UpdateText(string playerTag, string output) {
+		if (playerTag == "_P1") {
+			ctrl1Out.text = output;
+			timeSinceLastInput1 = showTime;
+		} else if (playerTag == "_P2") {
+			ctrl2Out.text = output;
+			timeSinceLastInput2 = showTime;
+		}
+
+		Debug.Log (output);
+	}
 }
-
-
+	
